@@ -5,6 +5,13 @@ uvicorn[standard]==0.37.0
 openai==1.109.1
 requests==2.32.5
 httpx==0.28.1
+langchain-core==0.3.76
+langchain_openai==0.3.33
+langgraph==0.6.7
+langgraph-checkpoint==2.1.1
+langgraph-prebuilt==0.6.4
+langgraph-sdk==0.2.9
+langsmith==0.4.31
 tiktoken==0.11.0
 pydantic==2.11.9
 python-multipart>=0.0.9

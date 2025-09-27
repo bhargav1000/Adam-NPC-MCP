@@ -1,11 +1,3 @@
-"""
-Adam NPC LangGraph Workflow
-==========================
-
-LangGraph-based dialogue orchestration for Adam, the wise sage NPC.
-Integrates with the existing MCP server tools and provides structured workflow management.
-"""
-
 import os
 import asyncio
 from typing import Dict, Any, List, Optional, TypedDict, Annotated
