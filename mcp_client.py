@@ -1,8 +1,3 @@
-"""
-Adam NPC MCP Client using MCP JSON-RPC protocol
-A proper MCP client for interacting with the Adam NPC dialogue system.
-"""
-
 import os
 import asyncio
 from typing import Dict, Any, List, Optional
@@ -34,9 +29,10 @@ class ChatResponse(BaseModel):
 class AdamMCPClient:
     """MCP client for Adam NPC interactions using proper MCP JSON-RPC protocol."""
     
-    def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000"):
+    def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000/mcp"):
         self.openai_api_key = openai_api_key
         self.mcp_server_url = mcp_server_url
+        self.base_server_url = mcp_server_url.replace("/mcp", "")  # For HTTP fallback
         self.openai_client = openai.OpenAI(api_key=openai_api_key)
         self.session = None
         
@@ -102,7 +98,7 @@ class AdamMCPClient:
         if not endpoint:
             raise ValueError(f"Unknown tool: {tool_name}")
         
-        url = f"{self.mcp_server_url}{endpoint}"
+        url = f"{self.base_server_url}{endpoint}"
         
         async with httpx.AsyncClient() as client:
             if tool_name in ["get_context", "get_health_status"]:
@@ -250,6 +246,7 @@ async def interactive_chat():
         except Exception as e:
             print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
             print(f"   Make sure the server is running: python mcp_server.py")
+            print(f"   MCP endpoint should be available at /mcp")
             return
         
         while True:
@@ -292,7 +289,7 @@ def start_interactive_chat():
 
 if __name__ == "__main__":
     print("Starting Adam NPC MCP Client...")
-    print("Connecting to MCP server at http://localhost:8000")
+    print("Connecting to MCP server at http://localhost:8000/mcp")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     # Start interactive chat directly
