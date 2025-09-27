@@ -1,10 +1,10 @@
 """
-Adam NPC MCP Server using proper MCP protocol
-Model Context Protocol implementation with JSON-RPC support using the official MCP library.
+Simple MCP-style HTTP Server for Adam NPC
+Provides MCP functionality via HTTP endpoints for easier client connectivity.
 """
 
-from mcp.server import FastMCP
-from mcp import types
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import requests
 import json
@@ -16,9 +16,11 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize MCP server
-server = FastMCP(
-    name="Adam NPC System"
+# Initialize FastAPI server
+app = FastAPI(
+    title="Adam NPC MCP Server",
+    description="MCP-style server for Adam, a wise centuries-old sage NPC",
+    version="1.0.0"
 )
 
 # In-memory storage for conversation context
@@ -35,13 +37,21 @@ ADAM_KNOWLEDGE_BASE = {
     "time": "Time flows differently in the Northern Isles - what seems like moments can be years, and centuries can pass like heartbeats."
 }
 
+# Request models
+class MessageRequest(BaseModel):
+    role: str
+    content: str
+    timestamp: Optional[str] = None
+
+class QueryRequest(BaseModel):
+    query: str
+
 def estimate_tokens(text: str) -> int:
     """Estimate token count using tiktoken."""
     try:
         encoding = tiktoken.get_encoding("cl100k_base")
         return len(encoding.encode(text))
     except:
-        # Fallback estimation
         return len(text.split()) * 1.3
 
 def get_context_summary() -> str:
@@ -101,16 +111,16 @@ def search_knowledge_tool(query: str) -> str:
     
     return f"The mists of time obscure this knowledge, but perhaps we can explore '{query}' together through conversation."
 
-# MCP Tools
-@server.tool()
-async def add_message(role: str, content: str, timestamp: Optional[str] = None) -> str:
+# MCP-style HTTP Endpoints
+@app.post("/add_message")
+async def add_message(request: MessageRequest):
     """Add a message to the conversation context."""
     global conversation_memory, conversation_summary
     
     message = {
-        "role": role,
-        "content": content,
-        "timestamp": timestamp or datetime.now().isoformat()
+        "role": request.role,
+        "content": request.content,
+        "timestamp": request.timestamp or datetime.now().isoformat()
     }
     
     conversation_memory.append(message)
@@ -119,73 +129,65 @@ async def add_message(role: str, content: str, timestamp: Optional[str] = None) 
     total_tokens = sum(estimate_tokens(msg.get("content", "")) for msg in conversation_memory)
     
     if total_tokens > MAX_TOKENS:
-        # Summarize and trim old messages
-        old_messages = conversation_memory[:-5]  # Keep last 5 messages
+        old_messages = conversation_memory[:-5]
         summary_text = "\n".join([f"{msg.get('role', '')}: {msg.get('content', '')}" for msg in old_messages])
         conversation_summary = f"Previous conversation covered: {summary_text[:500]}..."
         conversation_memory[:] = conversation_memory[-5:]
     
-    result = {
+    return {
         "status": "success",
         "message": "Message added to context",
         "token_count": sum(estimate_tokens(msg.get("content", "")) for msg in conversation_memory)
     }
-    return json.dumps(result)
 
-@server.tool()
-async def get_context() -> str:
+@app.get("/get_context")
+async def get_context():
     """Retrieve the current conversation context."""
-    result = {
+    return {
         "messages": conversation_memory,
         "summary": get_context_summary(),
         "token_count": sum(estimate_tokens(msg.get("content", "")) for msg in conversation_memory)
     }
-    return json.dumps(result)
 
-@server.tool()
-async def knowledge_search(query: str) -> str:
+@app.post("/knowledge_search")
+async def knowledge_search(request: QueryRequest):
     """Search the knowledge base and Wikipedia for information about a topic."""
-    result_text = search_knowledge_tool(query)
-    result = {
+    result_text = search_knowledge_tool(request.query)
+    return {
         "status": "success",
-        "query": query,
+        "query": request.query,
         "result": result_text
     }
-    return json.dumps(result)
 
-@server.tool()
-async def summarize_history() -> str:
+@app.get("/summarize_history")
+async def summarize_history():
     """Summarize the conversation history."""
     if not conversation_memory:
-        result = {"summary": "No conversation to summarize."}
-    else:
-        summary = get_context_summary()
-        result = {"summary": summary}
-    return json.dumps(result)
+        return {"summary": "No conversation to summarize."}
+    
+    summary = get_context_summary()
+    return {"summary": summary}
 
-@server.tool()
-async def reset_conversation() -> str:
+@app.post("/reset_conversation")
+async def reset_conversation():
     """Reset the conversation context."""
     global conversation_memory, conversation_summary
     conversation_memory.clear()
     conversation_summary = ""
-    result = {"status": "success", "message": "Conversation context reset"}
-    return json.dumps(result)
+    return {"status": "success", "message": "Conversation context reset"}
 
-@server.tool()
-async def get_health_status() -> str:
+@app.get("/health")
+async def get_health_status():
     """Check the health status of the MCP server."""
-    result = {
+    return {
         "status": "healthy",
         "messages_count": len(conversation_memory),
         "summary_exists": bool(conversation_summary),
         "adam_knowledge_topics": list(ADAM_KNOWLEDGE_BASE.keys())
     }
-    return json.dumps(result)
 
-# MCP Resources
-@server.resource("adam://character/profile")
-async def adam_character_profile() -> str:
+@app.get("/character_profile")
+async def adam_character_profile():
     """Get Adam's character profile and background."""
     profile = {
         "name": "Adam",
@@ -201,21 +203,14 @@ async def adam_character_profile() -> str:
         "origin": "Based on a character scenario once imagined by the creator"
     }
     
-    return json.dumps(profile, indent=2)
+    return profile
 
 if __name__ == "__main__":
-    print("🚀 Starting Adam NPC MCP Server with proper MCP protocol...")
-    print("📡 MCP JSON-RPC Server with protocol compliance")
-    print("🔧 Available MCP tools:")
-    print("- add_message: Add message to conversation context")
-    print("- get_context: Get conversation context") 
-    print("- knowledge_search: Search Adam's knowledge and Wikipedia")
-    print("- summarize_history: Get conversation summary")
-    print("- reset_conversation: Reset conversation")
-    print("- get_health_status: Check server health")
-    print("\n📚 Available MCP resources:")
-    print("- adam://character/profile: Adam's character information")
-    print("\n⚡ Starting server...")
+    import uvicorn
+    print("🚀 Starting Adam NPC HTTP Server...")
+    print("📡 Server will be available at http://localhost:8000")
+    print("📚 API docs: http://localhost:8000/docs")
+    print("🔧 MCP-style endpoints available")
+    print("⚡ Press Ctrl+C to stop\n")
     
-    # Start the MCP server - this will auto-detect the transport
-    server.run()
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -60,7 +60,7 @@ class AdamMCPClient:
     async def __aenter__(self):
         """Async context manager entry - establish MCP connection."""
         try:
-            # Connect to MCP server via SSE transport
+            # Try to connect to MCP server via SSE transport
             self.session = await sse_client(self.mcp_server_url).__aenter__()
             
             # Initialize the session
@@ -68,7 +68,7 @@ class AdamMCPClient:
             logger.info("✅ Connected to MCP server successfully")
             return self
         except Exception as e:
-            logger.error(f"❌ Failed to connect to MCP server: {e}")
+            logger.warning(f"⚠️  MCP connection failed, using HTTP fallback: {e}")
             # Fallback to direct HTTP calls if MCP connection fails
             self.session = None
             return self
