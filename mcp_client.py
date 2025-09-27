@@ -12,7 +12,6 @@ from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.sse import sse_client
 from mcp import types
-from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import logging
 import httpx
@@ -30,12 +29,7 @@ class ChatResponse(BaseModel):
     used_knowledge_tool: bool = False
     knowledge_result: str = None
 
-# Initialize FastAPI app for web interface
-client_app = FastAPI(
-    title="Adam NPC Client",
-    description="Client interface for chatting with Adam, the wise sage",
-    version="1.0.0"
-)
+# Simple client - no web interface needed
 
 class AdamMCPClient:
     """MCP client for Adam NPC interactions using proper MCP JSON-RPC protocol."""
@@ -119,7 +113,7 @@ class AdamMCPClient:
             if response.status_code == 200:
                 return response.json()
             else:
-                raise HTTPException(status_code=response.status_code, detail=response.text)
+                raise Exception(f"HTTP {response.status_code}: {response.text}")
 
     async def add_message(self, role: str, content: str):
         """Add a message to the conversation context."""
@@ -231,69 +225,7 @@ class AdamMCPClient:
                 used_knowledge_tool=False
             )
 
-# Global client instance
-adam_client = None
-
-async def get_adam_client():
-    """Get or create the Adam client instance."""
-    global adam_client
-    if adam_client is None:
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not openai_api_key:
-            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
-        adam_client = AdamMCPClient(openai_api_key)
-    return adam_client
-
-# FastAPI endpoints for the client
-@client_app.post("/chat", response_model=ChatResponse)
-async def chat_with_adam(message: ChatMessage):
-    """Chat with Adam NPC."""
-    try:
-        client = await get_adam_client()
-        async with client:
-            response = await client.generate_response(message.content)
-            return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@client_app.post("/reset")
-async def reset_chat():
-    """Reset the conversation with Adam."""
-    try:
-        client = await get_adam_client()
-        async with client:
-            await client.reset_conversation()
-            return {"status": "success", "message": "Conversation reset"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@client_app.get("/context")
-async def get_chat_context():
-    """Get the current conversation context."""
-    try:
-        client = await get_adam_client()
-        async with client:
-            context = await client.get_context()
-            return context
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@client_app.get("/health")
-async def health_check():
-    """Health check for the client and MCP server."""
-    try:
-        client = await get_adam_client()
-        async with client:
-            server_health = await client.get_health_status()
-            return {
-                "client_status": "healthy",
-                "server_health": server_health
-            }
-    except Exception as e:
-        return {
-            "client_status": "error",
-            "error": str(e)
-        }
+# Simple CLI client - no web endpoints needed
 
 # CLI Interface for testing
 async def interactive_chat():
@@ -310,12 +242,14 @@ async def interactive_chat():
     client = AdamMCPClient(openai_api_key)
     
     async with client:
-        # Test MCP connection
+        # Check if server is running
         try:
             health = await client.get_health_status()
-            print(f"✅ Connected to MCP server: {health}")
+            print(f"✅ Server is running: {health['status']}")
         except Exception as e:
-            print(f"⚠️  MCP connection failed, using HTTP fallback: {e}")
+            print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
+            print(f"   Make sure the server is running: python mcp_server.py")
+            return
         
         while True:
             try:
@@ -356,28 +290,9 @@ def start_interactive_chat():
     asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
-    import uvicorn
-    import threading
-    import time
-    
-    # Start the FastAPI client server in a separate thread
-    def start_client_server():
-        uvicorn.run(client_app, host="0.0.0.0", port=8001, log_level="warning")
-    
     print("Starting Adam NPC MCP Client...")
-    print("Client API will be available at http://localhost:8001")
-    print("Endpoints:")
-    print("- POST /chat - Chat with Adam")
-    print("- POST /reset - Reset conversation")
-    print("- GET /context - Get conversation context")
-    print("- GET /health - Health check")
-    print("\nStarting interactive CLI in 2 seconds...")
+    print("Connecting to MCP server at http://localhost:8000")
+    print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
-    # Start server in background
-    server_thread = threading.Thread(target=start_client_server, daemon=True)
-    server_thread.start()
-    
-    time.sleep(2)
-    
-    # Start interactive chat
+    # Start interactive chat directly
     start_interactive_chat()
