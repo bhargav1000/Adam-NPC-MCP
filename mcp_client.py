@@ -3,10 +3,6 @@ import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import openai
-from mcp.client.session import ClientSession
-from mcp.client.stdio import StdioServerParameters, stdio_client
-from mcp.client.sse import sse_client
-from mcp import types
 from pydantic import BaseModel
 import logging
 import httpx
@@ -49,19 +45,10 @@ class AdamMCPClient:
 
     async def __aenter__(self):
         """Async context manager entry - establish MCP connection."""
-        try:
-            # Try to connect to MCP server via SSE transport
-            self.session = await sse_client(self.mcp_server_url).__aenter__()
-            
-            # Initialize the session
-            await self.session.initialize()
-            logger.info("✅ Connected to MCP server successfully")
-            return self
-        except Exception as e:
-            logger.warning(f"⚠️  MCP connection failed, using HTTP fallback: {e}")
-            # Fallback to direct HTTP calls if MCP connection fails
-            self.session = None
-            return self
+        # For now, let's use HTTP fallback primarily and fix MCP connection later
+        logger.info("🔗 Using HTTP fallback for reliable connection")
+        self.session = None
+        return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
@@ -69,19 +56,8 @@ class AdamMCPClient:
             await self.session.__aexit__(exc_type, exc_val, exc_tb)
 
     async def _call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Call an MCP tool via JSON-RPC protocol."""
-        if self.session:
-            try:
-                # Use proper MCP tool calling
-                result = await self.session.call_tool(
-                    name=tool_name,
-                    arguments=arguments or {}
-                )
-                return result.content[0].text if result.content else {}
-            except Exception as e:
-                logger.warning(f"MCP tool call failed: {e}, falling back to HTTP")
-        
-        # Fallback to direct HTTP calls
+        """Call an MCP tool via HTTP fallback for now."""
+        # Use direct HTTP calls for reliability
         return await self._http_fallback(tool_name, arguments)
 
     async def _http_fallback(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -244,9 +220,9 @@ async def interactive_chat():
             health = await client.get_health_status()
             print(f"✅ Server is running: {health['status']}")
         except Exception as e:
-            print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
+            print(f"❌ Cannot connect to server at {client.base_server_url}")
             print(f"   Make sure the server is running: python mcp_server.py")
-            print(f"   MCP endpoint should be available at /mcp")
+            print(f"   Server should be available at http://localhost:8000")
             return
         
         while True:
@@ -288,8 +264,8 @@ def start_interactive_chat():
     asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
-    print("Starting Adam NPC MCP Client...")
-    print("Connecting to MCP server at http://localhost:8000/mcp")
+    print("Starting Adam NPC Client...")
+    print("Connecting to server at http://localhost:8000 (HTTP mode)")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     # Start interactive chat directly
