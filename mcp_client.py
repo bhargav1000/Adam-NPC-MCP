@@ -222,7 +222,8 @@ class AdamMCPClient:
             logger.error(f"Error generating response: {e}")
             return ChatResponse(
                 response="I apologize, but something went wrong while processing your message. Could you try again?",
-                used_knowledge_tool=False
+                used_knowledge_tool=False,
+                knowledge_result=None
             )
 
 # Simple CLI client - no web endpoints needed
