@@ -46,10 +46,10 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 
 ## 🏗️ Architecture
 
-### FastAPI Design
-- **MCP Server**: Pure FastAPI application with RESTful endpoints
-- **MCP Client**: Standard HTTP client with FastAPI endpoints  
-- **Zero Complex Dependencies**: No custom protocols or complex routing
+### FastMCP + FastAPI Design
+- **MCP Server**: FastMCP server with proper MCP tools and resources
+- **MCP Client**: FastMCP client with FastAPI web interface  
+- **True MCP Protocol**: Proper Model Context Protocol implementation
 
 ### Key Components
 1. **Conversation Memory**: Token-aware context management (4K limit)
@@ -58,17 +58,22 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 
 ## 📡 API Reference
 
-### MCP Server Endpoints (`localhost:8000`)
+### MCP Server Tools and Resources
 
-| Endpoint | Method | Purpose |
-|----------|---------|---------|
-| `/add_message` | POST | Add message to conversation context |
-| `/get_context` | GET | Retrieve conversation history and summary |
-| `/tool_call` | POST | Search knowledge base and Wikipedia |
-| `/summarize_history` | POST | Generate conversation summary |
-| `/reset` | POST | Clear conversation context |
-| `/health` | GET | Server health check |
-| `/docs` | GET | Interactive API documentation |
+**MCP Tools (callable via FastMCP):**
+| Tool | Purpose |
+|------|---------|
+| `add_message` | Add message to conversation context |
+| `get_context` | Retrieve conversation history and summary |
+| `knowledge_search` | Search Adam's knowledge base and Wikipedia |
+| `summarize_history` | Generate conversation summary |
+| `reset_conversation` | Clear conversation context |
+| `get_health_status` | Server health check with Adam's knowledge topics |
+
+**MCP Resources:**
+| Resource URI | Purpose |
+|--------------|---------|
+| `adam://character/profile` | Adam's character information and background |
 
 ### Client API Endpoints (`localhost:8001`)
 
@@ -81,18 +86,23 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 
 ### Example Usage
 
-**Chat with Adam:**
+**Chat with Adam (via FastAPI client):**
 ```bash
 curl -X POST "http://localhost:8001/chat" \
   -H "Content-Type: application/json" \
   -d '{"content": "Tell me about the Northern Isles"}'
 ```
 
-**Direct MCP Server:**
-```bash
-curl -X POST "http://localhost:8000/tool_call" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "magic systems"}'
+**Direct MCP Tools (using FastMCP client):**
+```python
+from fastmcp import Client
+
+async with Client("http://localhost:8000") as client:
+    # Call MCP tools
+    result = await client.call_tool("knowledge_search", {"query": "magic systems"})
+    
+    # Access MCP resources
+    profile = await client.read_resource("adam://character/profile")
 ```
 
 ## 🧙‍♂️ Adam's Character
@@ -128,12 +138,12 @@ adam-npc-mcp/
 ```
 
 ### Key Features
-- **Simplified Architecture**: Pure FastAPI with RESTful HTTP endpoints
-- **Auto-reload**: Development server reloads on code changes
-- **Interactive Docs**: Automatic API documentation at `/docs`
+- **True MCP Implementation**: FastMCP server with proper tools and resources
+- **Decorator-Based Tools**: Simple `@server.tool` decorators for MCP tools
+- **Context Injection**: MCP Context object for logging and progress reporting
 - **Token Management**: Automatic conversation summarization at 4K tokens
 - **Robust Knowledge Tool**: Local knowledge + Wikipedia fallback
-- **Health Checks**: Built-in monitoring endpoints
+- **Resource Support**: MCP resources for character profiles and data
 
 ### Adding New Knowledge
 Edit the `ADAM_KNOWLEDGE_BASE` dictionary in `mcp_server.py` (based on the creator's original character concept):
@@ -242,4 +252,4 @@ pip install fastmcp
 
 ---
 
-**Built with FastAPI for modern, maintainable MCP implementations** 🚀
+**Built with FastMCP + FastAPI for proper, modern MCP implementations** 🚀

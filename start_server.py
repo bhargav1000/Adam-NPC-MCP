@@ -1,33 +1,26 @@
 #!/usr/bin/env python3
 """
 Simple startup script for the Adam NPC MCP Server
-Uses FastAPI and FastMCP for simplified architecture
+Uses FastMCP for proper Model Context Protocol implementation
 """
 
-import uvicorn
 import sys
 import os
 
 def main():
     """Start the Adam NPC MCP Server."""
     print("🚀 Starting Adam NPC MCP Server...")
-    print("📡 Server will be available at: http://localhost:8000")
-    print("📚 API Documentation at: http://localhost:8000/docs")
-    print("🔍 Health check at: http://localhost:8000/health")
+    print("📡 MCP Server will be available for client connections")
+    print("🔧 MCP tools: add_message, get_context, knowledge_search, etc.")
+    print("📚 MCP resources: adam://character/profile")
     print("\n⚡ Press Ctrl+C to stop the server\n")
     
     try:
-        # Import the FastAPI app from mcp_server
-        from mcp_server import app
+        # Import and run the FastMCP server
+        from mcp_server import server
         
-        # Run the server
-        uvicorn.run(
-            app,
-            host="0.0.0.0",
-            port=8000,
-            log_level="info",
-            reload=True  # Enable auto-reload for development
-        )
+        # Run the MCP server (will auto-detect transport)
+        server.run()
     except KeyboardInterrupt:
         print("\n👋 Adam NPC MCP Server shutting down...")
     except Exception as e:

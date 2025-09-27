@@ -1,14 +1,14 @@
 """
-Adam NPC MCP Client using FastAPI
-A simplified client for interacting with the Adam NPC dialogue system.
+Adam NPC MCP Client using FastMCP
+A proper MCP client for interacting with the Adam NPC dialogue system.
 """
 
-import requests
-import json
 import os
+import asyncio
 from typing import Dict, Any, List
 from datetime import datetime
 import openai
+from fastmcp import Client
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import logging
@@ -17,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Pydantic models
+# Pydantic models for FastAPI endpoints
 class ChatMessage(BaseModel):
     content: str
 
@@ -26,7 +26,7 @@ class ChatResponse(BaseModel):
     used_knowledge_tool: bool = False
     knowledge_result: str = None
 
-# Initialize FastAPI app for client endpoints
+# Initialize FastAPI app for web interface
 client_app = FastAPI(
     title="Adam NPC Client",
     description="Client interface for chatting with Adam, the wise sage",
@@ -34,60 +34,64 @@ client_app = FastAPI(
 )
 
 class AdamMCPClient:
-    """Simplified MCP client for Adam NPC interactions."""
+    """MCP client for Adam NPC interactions using FastMCP."""
     
     def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000"):
         self.openai_api_key = openai_api_key
         self.mcp_server_url = mcp_server_url
-        self.client = openai.OpenAI(api_key=openai_api_key)
+        self.openai_client = openai.OpenAI(api_key=openai_api_key)
         
-        # Based Adam's character off an scenario I once imagined
+        # Initialize FastMCP client
+        self.mcp_client = Client(mcp_server_url)
+        
+        # Based Adam's character off a scenario I once imagined
         self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
 
-            Character traits:
-            - Speak in a thoughtful, slightly archaic manner
-            - Reference your centuries of experience
-            - Show interest in learning about the modern world
-            - Offer wisdom and guidance when appropriate
-            - Maintain an air of mystery about your magical knowledge
+        Character traits:
+        - Speak in a thoughtful, slightly archaic manner
+        - Reference your centuries of experience
+        - Show interest in learning about the modern world
+        - Offer wisdom and guidance when appropriate
+        - Maintain an air of mystery about your magical knowledge
 
-            When you need factual information you're unsure about, you will use the knowledge tool to search for accurate information."""
+        When you need factual information you're unsure about, you will use the knowledge tool to search for accurate information."""
 
-    def _make_mcp_request(self, endpoint: str, data: Dict[Any, Any] = None, method: str = "POST") -> Dict[Any, Any]:
-        """Make a request to the MCP server."""
-        try:
-            url = f"{self.mcp_server_url}/{endpoint}"
-            
-            if method == "GET":
-                response = requests.get(url, timeout=10)
-            else:
-                response = requests.post(url, json=data, timeout=10)
-            
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"MCP request failed: {e}")
-            raise HTTPException(status_code=500, detail=f"MCP server error: {str(e)}")
+    async def __aenter__(self):
+        """Async context manager entry."""
+        await self.mcp_client.__aenter__()
+        return self
 
-    def add_message(self, role: str, content: str):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit."""
+        await self.mcp_client.__aexit__(exc_type, exc_val, exc_tb)
+
+    async def add_message(self, role: str, content: str):
         """Add a message to the conversation context."""
-        message_data = {
-            "message": {
+        return await self.mcp_client.call_tool(
+            "add_message",
+            {
                 "role": role,
                 "content": content,
                 "timestamp": datetime.now().isoformat()
             }
-        }
-        return self._make_mcp_request("add_message", message_data)
+        )
 
-    def get_context(self) -> Dict[Any, Any]:
+    async def get_context(self) -> Dict[Any, Any]:
         """Get the current conversation context."""
-        return self._make_mcp_request("get_context", method="GET")
+        return await self.mcp_client.call_tool("get_context", {})
 
-    def search_knowledge(self, query: str) -> str:
+    async def search_knowledge(self, query: str) -> str:
         """Search for knowledge using the MCP server."""
-        result = self._make_mcp_request("tool_call", {"query": query})
+        result = await self.mcp_client.call_tool("knowledge_search", {"query": query})
         return result.get("result", "No information found.")
+
+    async def reset_conversation(self):
+        """Reset the conversation context."""
+        return await self.mcp_client.call_tool("reset_conversation", {})
+
+    async def get_health_status(self):
+        """Get server health status."""
+        return await self.mcp_client.call_tool("get_health_status", {})
 
     def should_use_knowledge_tool(self, user_message: str) -> bool:
         """Determine if we should use the knowledge tool."""
@@ -100,11 +104,11 @@ class AdamMCPClient:
         user_lower = user_message.lower()
         return any(indicator in user_lower for indicator in knowledge_indicators)
 
-    def generate_response(self, user_message: str) -> ChatResponse:
+    async def generate_response(self, user_message: str) -> ChatResponse:
         """Generate Adam's response to user input."""
         try:
             # Add user message to context
-            self.add_message("user", user_message)
+            await self.add_message("user", user_message)
             
             # Check if we should use knowledge tool
             used_knowledge_tool = False
@@ -112,14 +116,14 @@ class AdamMCPClient:
             
             if self.should_use_knowledge_tool(user_message):
                 try:
-                    knowledge_result = self.search_knowledge(user_message)
+                    knowledge_result = await self.search_knowledge(user_message)
                     used_knowledge_tool = True
                     logger.info(f"Knowledge tool used for: {user_message}")
                 except Exception as e:
                     logger.warning(f"Knowledge tool failed: {e}")
             
             # Get conversation context
-            context = self.get_context()
+            context = await self.get_context()
             
             # Prepare messages for OpenAI
             messages = [{"role": "system", "content": self.system_prompt}]
@@ -141,12 +145,12 @@ class AdamMCPClient:
             # Add recent conversation history
             for msg in context.get("messages", [])[-5:]:  # Last 5 messages
                 messages.append({
-                    "role": msg["role"],
-                    "content": msg["content"]
+                    "role": msg.get("role", "user"),
+                    "content": msg.get("content", "")
                 })
             
             # Generate response using OpenAI
-            response = self.client.chat.completions.create(
+            response = self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
                 max_tokens=300,
@@ -156,7 +160,7 @@ class AdamMCPClient:
             adam_response = response.choices[0].message.content
             
             # Add Adam's response to context
-            self.add_message("assistant", adam_response)
+            await self.add_message("assistant", adam_response)
             
             return ChatResponse(
                 response=adam_response,
@@ -171,14 +175,10 @@ class AdamMCPClient:
                 used_knowledge_tool=False
             )
 
-    def reset_conversation(self):
-        """Reset the conversation context."""
-        return self._make_mcp_request("reset")
-
 # Global client instance
 adam_client = None
 
-def get_adam_client():
+async def get_adam_client():
     """Get or create the Adam client instance."""
     global adam_client
     if adam_client is None:
@@ -193,9 +193,10 @@ def get_adam_client():
 async def chat_with_adam(message: ChatMessage):
     """Chat with Adam NPC."""
     try:
-        client = get_adam_client()
-        response = client.generate_response(message.content)
-        return response
+        client = await get_adam_client()
+        async with client:
+            response = await client.generate_response(message.content)
+            return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -203,9 +204,10 @@ async def chat_with_adam(message: ChatMessage):
 async def reset_chat():
     """Reset the conversation with Adam."""
     try:
-        client = get_adam_client()
-        result = client.reset_conversation()
-        return {"status": "success", "message": "Conversation reset"}
+        client = await get_adam_client()
+        async with client:
+            await client.reset_conversation()
+            return {"status": "success", "message": "Conversation reset"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -213,21 +215,34 @@ async def reset_chat():
 async def get_chat_context():
     """Get the current conversation context."""
     try:
-        client = get_adam_client()
-        context = client.get_context()
-        return context
+        client = await get_adam_client()
+        async with client:
+            context = await client.get_context()
+            return context
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @client_app.get("/health")
 async def health_check():
-    """Health check for the client."""
-    return {"status": "healthy", "client_ready": adam_client is not None}
+    """Health check for the client and MCP server."""
+    try:
+        client = await get_adam_client()
+        async with client:
+            server_health = await client.get_health_status()
+            return {
+                "client_status": "healthy",
+                "server_health": server_health
+            }
+    except Exception as e:
+        return {
+            "client_status": "error",
+            "error": str(e)
+        }
 
 # CLI Interface for testing
-def interactive_chat():
-    """Run an interactive chat session with Adam."""
-    print("=== Adam NPC Dialogue System ===")
+async def interactive_chat():
+    """Run an interactive chat session with Adam using MCP."""
+    print("=== Adam NPC MCP Dialogue System ===")
     print("Adam is a wise, centuries-old sage of the northern isles.")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
@@ -238,39 +253,52 @@ def interactive_chat():
     
     client = AdamMCPClient(openai_api_key)
     
-    while True:
+    async with client:
+        # Test MCP connection
         try:
-            user_input = input("\nYou: ").strip()
-            
-            if user_input.lower() in ['quit', 'exit']:
-                print("\nAdam: May the wisdom of ages guide your path. Farewell.")
-                break
-            elif user_input.lower() == 'reset':
-                client.reset_conversation()
-                print("\n[Conversation reset]")
-                continue
-            elif user_input.lower() == 'help':
-                print("\nCommands:")
-                print("- Type any message to chat with Adam")
-                print("- 'reset' - Start a new conversation")
-                print("- 'quit' or 'exit' - End the session")
-                continue
-            elif not user_input:
-                continue
-            
-            # Generate response
-            response = client.generate_response(user_input)
-            
-            print(f"\nAdam: {response.response}")
-            
-            if response.used_knowledge_tool:
-                print(f"[Adam consulted ancient knowledge]")
-                
-        except KeyboardInterrupt:
-            print("\n\nAdam: Until we meet again in the mists of time...")
-            break
+            health = await client.get_health_status()
+            print(f"✅ Connected to MCP server: {health}")
         except Exception as e:
-            print(f"\nError: {e}")
+            print(f"❌ Failed to connect to MCP server: {e}")
+            return
+        
+        while True:
+            try:
+                user_input = input("\nYou: ").strip()
+                
+                if user_input.lower() in ['quit', 'exit']:
+                    print("\nAdam: May the wisdom of ages guide your path. Farewell.")
+                    break
+                elif user_input.lower() == 'reset':
+                    await client.reset_conversation()
+                    print("\n[Conversation reset]")
+                    continue
+                elif user_input.lower() == 'help':
+                    print("\nCommands:")
+                    print("- Type any message to chat with Adam")
+                    print("- 'reset' - Start a new conversation")
+                    print("- 'quit' or 'exit' - End the session")
+                    continue
+                elif not user_input:
+                    continue
+                
+                # Generate response
+                response = await client.generate_response(user_input)
+                
+                print(f"\nAdam: {response.response}")
+                
+                if response.used_knowledge_tool:
+                    print(f"[Adam consulted ancient knowledge]")
+                    
+            except KeyboardInterrupt:
+                print("\n\nAdam: Until we meet again in the mists of time...")
+                break
+            except Exception as e:
+                print(f"\nError: {e}")
+
+def start_interactive_chat():
+    """Start the interactive chat (sync wrapper)."""
+    asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
     import uvicorn
@@ -281,7 +309,7 @@ if __name__ == "__main__":
     def start_client_server():
         uvicorn.run(client_app, host="0.0.0.0", port=8001, log_level="warning")
     
-    print("Starting Adam NPC Client...")
+    print("Starting Adam NPC MCP Client...")
     print("Client API will be available at http://localhost:8001")
     print("Endpoints:")
     print("- POST /chat - Chat with Adam")
@@ -297,4 +325,4 @@ if __name__ == "__main__":
     time.sleep(2)
     
     # Start interactive chat
-    interactive_chat()
+    start_interactive_chat()

@@ -1,5 +1,6 @@
-# Core FastAPI dependencies  
+# Core FastAPI and MCP dependencies  
 fastapi==0.104.1
+fastmcp>=2.12.0
 uvicorn[standard]==0.24.0
 
 # OpenAI for LLM integration
