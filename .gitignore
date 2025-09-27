@@ -1,0 +1,11 @@
+# dev folders
+__pycache__
+visualizations
+
+
+Technical test_Gen.pdf
+Technical_test_Gen.txt
+
+
+# macOS specific
+.DS_Store
