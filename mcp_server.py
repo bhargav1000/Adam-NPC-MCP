@@ -7,6 +7,7 @@ import json
 import tiktoken
 import logging
 from datetime import datetime
+import uvicorn
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,9 +19,6 @@ app = FastAPI(
     description="Adam NPC server with MCP protocol support - A wise centuries-old sage from the Northern Isles",
     version="1.0.0"
 )
-
-# Initialize FastAPI-MCP wrapper
-mcp = FastApiMCP(app)
 
 # In-memory storage for conversation context
 conversation_memory: List[Dict[str, Any]] = []
@@ -204,8 +202,10 @@ async def adam_character_profile():
     
     return profile
 
+# Initialize FastAPI-MCP wrapper
+mcp = FastApiMCP(app)
+
 if __name__ == "__main__":
-    import uvicorn
     
     # Mount the MCP server to expose FastAPI endpoints as MCP tools
     mcp.mount()
