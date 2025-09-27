@@ -5,7 +5,7 @@ A proper MCP client for interacting with the Adam NPC dialogue system.
 
 import os
 import asyncio
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 import openai
 from mcp.client.session import ClientSession
@@ -27,7 +27,7 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     used_knowledge_tool: bool = False
-    knowledge_result: str = None
+    knowledge_result: Optional[str] = None
 
 # Simple client - no web interface needed
 
