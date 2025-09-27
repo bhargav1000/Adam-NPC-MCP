@@ -6,6 +6,8 @@ import openai
 from pydantic import BaseModel
 import logging
 import httpx
+import json
+from fastapi_mcp_client import MCPClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,14 +25,14 @@ class ChatResponse(BaseModel):
 # Simple client - no web interface needed
 
 class AdamMCPClient:
-    """MCP client for Adam NPC interactions using proper MCP JSON-RPC protocol."""
+    """MCP client for Adam NPC interactions using proper MCP protocol."""
     
-    def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000/mcp"):
+    def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000"):
         self.openai_api_key = openai_api_key
         self.mcp_server_url = mcp_server_url
-        self.base_server_url = mcp_server_url.replace("/mcp", "")  # For HTTP fallback
+        self.base_server_url = mcp_server_url  # For HTTP fallback
         self.openai_client = openai.OpenAI(api_key=openai_api_key)
-        self.session = None
+        self.mcp_client = None
         
         self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
 
@@ -45,19 +47,34 @@ class AdamMCPClient:
 
     async def __aenter__(self):
         """Async context manager entry - establish MCP connection."""
-        # For now, let's use HTTP fallback primarily and fix MCP connection later
-        logger.info("🔗 Using HTTP fallback for reliable connection")
-        self.session = None
-        return self
+        try:
+            # Create proper MCP client
+            self.mcp_client = MCPClient(self.mcp_server_url)
+            await self.mcp_client.__aenter__()
+            logger.info("✅ MCP protocol connection established")
+            return self
+        except Exception as e:
+            logger.warning(f"⚠️  MCP connection failed, using HTTP fallback: {e}")
+            self.mcp_client = None
+            return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
-        if self.session:
-            await self.session.__aexit__(exc_type, exc_val, exc_tb)
+        if self.mcp_client:
+            await self.mcp_client.__aexit__(exc_type, exc_val, exc_tb)
 
     async def _call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Call an MCP tool via HTTP fallback for now."""
-        # Use direct HTTP calls for reliability
+        """Call an MCP tool via proper MCP client or HTTP fallback."""
+        if self.mcp_client:
+            try:
+                # Use proper MCP protocol
+                result = await self.mcp_client.call_operation(tool_name, arguments or {})
+                logger.debug(f"MCP call successful: {tool_name}")
+                return result
+            except Exception as e:
+                logger.warning(f"MCP call failed: {e}, falling back to HTTP")
+        
+        # Fallback to HTTP calls
         return await self._http_fallback(tool_name, arguments)
 
     async def _http_fallback(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -220,9 +237,10 @@ async def interactive_chat():
             health = await client.get_health_status()
             print(f"✅ Server is running: {health['status']}")
         except Exception as e:
-            print(f"❌ Cannot connect to server at {client.base_server_url}")
+            print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
             print(f"   Make sure the server is running: python mcp_server.py")
-            print(f"   Server should be available at http://localhost:8000")
+            print(f"   MCP endpoint should be available at /mcp")
+            print(f"   HTTP fallback at {client.base_server_url}")
             return
         
         while True:
@@ -264,8 +282,9 @@ def start_interactive_chat():
     asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
-    print("Starting Adam NPC Client...")
-    print("Connecting to server at http://localhost:8000 (HTTP mode)")
+    print("Starting Adam NPC MCP Client...")
+    print("Connecting to MCP server at http://localhost:8000")
+    print("Will use proper MCP protocol with HTTP fallback")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     # Start interactive chat directly

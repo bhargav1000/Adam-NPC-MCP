@@ -20,6 +20,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Initialize FastAPI-MCP wrapper BEFORE defining endpoints
+mcp = FastApiMCP(app)
+
 # In-memory storage for conversation context
 conversation_memory: List[Dict[str, Any]] = []
 conversation_summary: str = ""
@@ -201,9 +204,6 @@ async def adam_character_profile():
     }
     
     return profile
-
-# Initialize FastAPI-MCP wrapper
-mcp = FastApiMCP(app)
 
 if __name__ == "__main__":
     
