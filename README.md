@@ -1,6 +1,6 @@
-# Adam NPC MCP System
+# Adam NPC LangGraph + MCP System
 
-A simplified **Model Context Protocol (MCP)** implementation for Adam, a wise centuries-old sage NPC. Built with **FastMCP + FastAPI** for modern, clean architecture and powered by **GPT-4o** for superior dialogue quality.
+An advanced **Model Context Protocol (MCP)** implementation for Adam, a wise centuries-old sage NPC. Built with **LangGraph workflow orchestration + FastMCP + FastAPI** for sophisticated dialogue management and powered by **GPT-4o** for superior response quality.
 
 ## Quick Start
 
@@ -46,16 +46,18 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 
 ## Architecture
 
-### FastMCP + FastAPI Design
+### LangGraph + FastMCP + FastAPI Design
+- **LangGraph Workflow**: Sophisticated dialogue orchestration with structured state management
 - **MCP Server**: FastMCP server with proper MCP tools and resources
-- **MCP Client**: FastMCP client with FastAPI web interface  
+- **MCP Client**: LangGraph-powered client with workflow-based response generation
 - **True MCP Protocol**: Proper Model Context Protocol implementation
 
 ### Key Components
-1. **GPT-4o Integration**: Basic language model for initial dialogue quality
-2. **Conversation Memory**: Token-aware context management (4K limit - limit was set arbitrarily)
-3. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback
-4. **Character Consistency**: Adam's sage persona maintained across conversations
+1. **LangGraph Workflow Orchestration**: Structured dialogue processing with nodes for input, context, knowledge search, and response generation
+2. **GPT-4o Integration**: Advanced language model for superior dialogue quality
+3. **Conversation Memory**: Token-aware context management with intelligent summarization (4K limit)
+4. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback with workflow-based decision making
+5. **Character Consistency**: Adam's sage persona maintained across conversations through workflow state management
 
 ## API Reference
 
@@ -129,21 +131,24 @@ Adam: Time flows differently in the Northern Isles, young one. I have seen seaso
 ### Project Structure
 ```
 adam-npc-mcp/
-├── mcp_server.py          # MCP server with proper JSON-RPC protocol
-├── mcp_client.py          # MCP client with FastAPI web interface
-├── requirements.txt       # Clean dependencies
-└── README.md              # Documentation
+├── adam_langgraph_workflow.py  # LangGraph workflow orchestration
+├── mcp_server.py              # MCP server with FastAPI-MCP integration
+├── mcp_client.py              # LangGraph-powered MCP client
+├── requirements.txt           # Dependencies including LangGraph
+└── README.md                  # Documentation
 ```
 
 ### Key Features
-- **GPT-4o Powered**: Advanced language model for sophisticated dialogue
+- **LangGraph Workflow Orchestration**: Sophisticated dialogue state management with conditional edges and structured flow
+- **GPT-4o Powered**: Advanced language model for superior dialogue quality
 - **True MCP Implementation**: FastMCP server with proper tools and resources
 - **Modern Python**: Requires Python 3.11+ for optimal performance
-- **Decorator-Based Tools**: Simple `@server.tool` decorators for MCP tools
+- **Workflow State Management**: Structured conversation state with input processing, context retrieval, knowledge decisions, and response generation
+- **Intelligent Tool Selection**: Conditional workflow edges for knowledge search based on user input patterns
 - **Context Injection**: MCP Context object for logging and progress reporting
 - **Token Management**: Automatic conversation summarization at 4K tokens
-- **Robust Knowledge Tool**: Local knowledge + Wikipedia fallback
-- **Resource Support**: MCP resources for character profiles and data
+- **Robust Knowledge Tool**: Local knowledge + Wikipedia fallback with workflow-based decision making
+- **Fallback Mechanisms**: Graceful degradation when workflow components fail
 
 ### Adding New Knowledge
 Edit the `ADAM_KNOWLEDGE_BASE` dictionary in `mcp_server.py` (based on the creator's original character concept):

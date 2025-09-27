@@ -8,6 +8,7 @@ import logging
 import httpx
 import json
 from fastapi_mcp_client import MCPClient
+from adam_langgraph_workflow import create_adam_workflow, AdamNPCWorkflow
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +26,7 @@ class ChatResponse(BaseModel):
 # Simple client - no web interface needed
 
 class AdamMCPClient:
-    """MCP client for Adam NPC interactions using proper MCP protocol."""
+    """MCP client for Adam NPC interactions using LangGraph workflow orchestration."""
     
     def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000"):
         self.openai_api_key = openai_api_key
@@ -33,6 +34,9 @@ class AdamMCPClient:
         self.base_server_url = mcp_server_url  # For HTTP fallback
         self.openai_client = openai.OpenAI(api_key=openai_api_key)
         self.mcp_client = None
+        
+        # Initialize LangGraph workflow
+        self.langgraph_workflow = create_adam_workflow(openai_api_key, mcp_server_url)
         
         self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
 
@@ -143,7 +147,27 @@ class AdamMCPClient:
         return any(indicator in user_lower for indicator in knowledge_indicators)
 
     async def generate_response(self, user_message: str) -> ChatResponse:
-        """Generate Adam's response to user input."""
+        """Generate Adam's response using LangGraph workflow orchestration."""
+        try:
+            logger.info(f"🔀 Processing with LangGraph workflow: {user_message[:50]}...")
+            
+            # Use LangGraph workflow for orchestrated response generation
+            workflow_result = await self.langgraph_workflow.process_dialogue(user_message)
+            
+            return ChatResponse(
+                response=workflow_result["response"],
+                used_knowledge_tool=workflow_result.get("used_knowledge_tool", False),
+                knowledge_result=workflow_result.get("knowledge_result")
+            )
+            
+        except Exception as e:
+            logger.error(f"LangGraph workflow error: {e}")
+            # Fallback to direct method if workflow fails
+            logger.info("🔄 Falling back to direct response generation...")
+            return await self.generate_response_fallback(user_message)
+    
+    async def generate_response_fallback(self, user_message: str) -> ChatResponse:
+        """Fallback response generation method (original implementation)."""
         try:
             # Add user message to context
             await self.add_message("user", user_message)
@@ -219,9 +243,10 @@ class AdamMCPClient:
 
 # CLI Interface for testing
 async def interactive_chat():
-    """Run an interactive chat session with Adam using MCP."""
-    print("=== Adam NPC MCP Dialogue System ===")
-    print("Adam is a wise, centuries-old sage of the northern isles.")
+    """Run an interactive chat session with Adam using LangGraph + MCP."""
+    print("=== Adam NPC LangGraph + MCP Dialogue System ===")
+    print("🔀 Powered by LangGraph workflow orchestration")
+    print("🧙‍♂️ Adam is a wise, centuries-old sage of the northern isles")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -282,9 +307,10 @@ def start_interactive_chat():
     asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
-    print("Starting Adam NPC MCP Client...")
-    print("Connecting to MCP server at http://localhost:8000")
-    print("Will use proper MCP protocol with HTTP fallback")
+    print("🚀 Starting Adam NPC LangGraph + MCP Client...")
+    print("🔀 LangGraph workflow orchestration enabled")
+    print("📡 Connecting to MCP server at http://localhost:8000")
+    print("🛡️  Will use proper MCP protocol with HTTP fallback")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     # Start interactive chat directly

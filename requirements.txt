@@ -14,3 +14,9 @@ matplotlib==3.10.6
 networkx==3.5
 numpy==2.3.3
 anyio==4.5
+
+# LangGraph and LangChain dependencies
+langgraph>=0.2.45
+langchain>=0.3.10
+langchain-openai>=0.2.10
+langchain-core>=0.3.29
