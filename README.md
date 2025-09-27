@@ -25,9 +25,9 @@ export OPENAI_API_KEY="your-openai-api-key-here"
 
 **Start the MCP Server:**
 ```bash
-python start_server.py
+python mcp_server.py
 ```
-Server runs at `http://localhost:8000` with auto-reload enabled.
+Server will auto-detect the appropriate transport (stdio/http/sse).
 
 **Start Interactive Chat:**
 ```bash
@@ -129,13 +129,10 @@ Adam: Time flows differently in the Northern Isles, young one. I have seen seaso
 ### Project Structure
 ```
 adam-npc-mcp/
-├── mcp_server.py          # FastMCP + FastAPI server
-├── mcp_client.py          # HTTP client with FastAPI endpoints
-├── start_server.py        # Simple server startup script
-├── requirements.txt       # Simplified dependencies
-├── demo_transcript.py     # Demo conversation script
-├── sample_transcript.txt  # Example conversation
-└── visualizations/        # Architecture diagrams
+├── mcp_server.py          # MCP server with proper JSON-RPC protocol
+├── mcp_client.py          # MCP client with FastAPI web interface
+├── requirements.txt       # Clean dependencies
+└── README.md              # Documentation
 ```
 
 ### Key Features
@@ -158,11 +155,6 @@ ADAM_KNOWLEDGE_BASE = {
 ```
 
 ## Testing
-
-**Run a Demo Conversation:**
-```bash
-python demo_transcript.py
-```
 
 **Test Individual Components:**
 ```bash
@@ -187,11 +179,8 @@ export MCP_SERVER_URL="http://localhost:8000"  # Optional, defaults to localhost
 ```
 
 ### Server Configuration
-Modify `start_server.py` to change:
-- Port (default: 8000)
-- Host (default: 0.0.0.0)
-- Log level (default: info)
-- Auto-reload (default: True)
+The MCP server auto-detects the appropriate transport (stdio/http/sse).
+Configuration can be modified in `mcp_server.py` if needed.
 
 ## 📊 Monitoring
 
@@ -215,18 +204,18 @@ export OPENAI_API_KEY="your-key-here"
 ```
 
 **"Connection refused"**
-- Ensure MCP server is running: `python start_server.py`
+- Ensure MCP server is running: `python mcp_server.py`
 - Check server logs for errors
-- Verify port 8000 is available
+- Verify the MCP transport is working properly
 
-**"FastMCP import error"**
+**"MCP import error"**
 ```bash
-pip install fastmcp
+pip install mcp
 ```
 
 ### Getting Help
-1. Check server logs in the terminal running `start_server.py`
-2. Visit `http://localhost:8000/docs` for interactive API documentation
+1. Check server logs in the terminal running `python mcp_server.py`
+2. Visit `http://localhost:8001/docs` for interactive client API documentation
 3. Test individual endpoints with curl commands above
 
 ## Technical Assessment Compliance
