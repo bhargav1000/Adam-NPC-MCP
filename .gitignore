@@ -1,6 +1,7 @@
 # dev folders
 __pycache__
 visualizations
+.venv
 
 
 Technical test_Gen.pdf

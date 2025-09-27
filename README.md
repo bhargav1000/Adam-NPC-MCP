@@ -1,12 +1,12 @@
 # Adam NPC MCP System
 
-A simplified **Model Context Protocol (MCP)** implementation for Adam, a wise centuries-old sage NPC. Built with **FastAPI** for modern, clean architecture.
+A simplified **Model Context Protocol (MCP)** implementation for Adam, a wise centuries-old sage NPC. Built with **FastMCP + FastAPI** for modern, clean architecture and powered by **GPT-4o** for superior dialogue quality.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- OpenAI API key
+- Python 3.11+
+- OpenAI API key with GPT-4o access
 
 ### Installation
 ```bash
@@ -17,7 +17,7 @@ cd Adam-NPC-MCP
 # Install dependencies
 pip install -r requirements.txt
 
-# Set your OpenAI API key
+# REQUIRED: Set your OpenAI API key (needed for GPT-4o)
 export OPENAI_API_KEY="your-openai-api-key-here"
 ```
 
@@ -44,7 +44,7 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 "
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ### FastMCP + FastAPI Design
 - **MCP Server**: FastMCP server with proper MCP tools and resources
@@ -52,11 +52,12 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 - **True MCP Protocol**: Proper Model Context Protocol implementation
 
 ### Key Components
-1. **Conversation Memory**: Token-aware context management (4K limit)
-2. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback
-3. **Character Consistency**: Adam's sage persona maintained across conversations
+1. **GPT-4o Integration**: Basic language model for initial dialogue quality
+2. **Conversation Memory**: Token-aware context management (4K limit - limit was set arbitrarily)
+3. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback
+4. **Character Consistency**: Adam's sage persona maintained across conversations
 
-## 📡 API Reference
+## API Reference
 
 ### MCP Server Tools and Resources
 
@@ -105,7 +106,7 @@ async with Client("http://localhost:8000") as client:
     profile = await client.read_resource("adam://character/profile")
 ```
 
-## 🧙‍♂️ Adam's Character
+## Adam's Character
 
 **Adam** is a wise, centuries-old sage from the mystical Northern Isles, based on a character scenario once imagined by the creator. He possesses:
 - Deep knowledge of magic and arcane arts
@@ -123,7 +124,7 @@ You: How long have you lived?
 Adam: Time flows differently in the Northern Isles, young one. I have seen seasons turn to centuries, watched empires rise and fall like morning mist. But tell me, what wisdom do you seek from this old sage?
 ```
 
-## 🛠️ Development
+## Development
 
 ### Project Structure
 ```
@@ -138,7 +139,9 @@ adam-npc-mcp/
 ```
 
 ### Key Features
+- **GPT-4o Powered**: Advanced language model for sophisticated dialogue
 - **True MCP Implementation**: FastMCP server with proper tools and resources
+- **Modern Python**: Requires Python 3.11+ for optimal performance
 - **Decorator-Based Tools**: Simple `@server.tool` decorators for MCP tools
 - **Context Injection**: MCP Context object for logging and progress reporting
 - **Token Management**: Automatic conversation summarization at 4K tokens
@@ -154,7 +157,7 @@ ADAM_KNOWLEDGE_BASE = {
 }
 ```
 
-## 🧪 Testing
+## Testing
 
 **Run a Demo Conversation:**
 ```bash
@@ -175,11 +178,11 @@ curl -X POST http://localhost:8000/tool_call \
   -d '{"query": "wisdom"}'
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 ```bash
-export OPENAI_API_KEY="your-key-here"      # Required
+export OPENAI_API_KEY="your-key-here"      # Required - must have GPT-4o access
 export MCP_SERVER_URL="http://localhost:8000"  # Optional, defaults to localhost:8000
 ```
 
@@ -201,13 +204,14 @@ Modify `start_server.py` to change:
 - Message history length
 - Knowledge tool usage frequency
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 **"OpenAI API key not found"**
 ```bash
 export OPENAI_API_KEY="your-key-here"
+# Note: Requires an API key with GPT-4o access
 ```
 
 **"Connection refused"**
@@ -225,7 +229,7 @@ pip install fastmcp
 2. Visit `http://localhost:8000/docs` for interactive API documentation
 3. Test individual endpoints with curl commands above
 
-## 📝 Technical Assessment Compliance
+## Technical Assessment Compliance
 
 ### ✅ Implementation Requirements
 - **MCP Server**: ✅ FastAPI + FastMCP architecture
@@ -236,12 +240,14 @@ pip install fastmcp
 - **Conversation Memory**: ✅ Context-aware dialogue management
 
 ### ✅ Technical Features
+- **GPT-4o Integration**: State-of-the-art language model for superior responses
+- **Python 3.11+ Compatible**: Modern Python features and performance optimizations
 - **Modern Architecture**: FastAPI + FastMCP (simplified vs complex custom protocols)
 - **Auto-reload**: Development-friendly server
 - **Interactive Docs**: Built-in API documentation
 - **Health Monitoring**: Server and client health checks
 - **Error Handling**: Graceful fallbacks and error responses
-- **Logging**: Structured logging for debugging
+- **Structured Logging**: FastMCP context-aware logging for debugging
 
 ### ✅ Evaluation Criteria Met
 - **Functionality**: Complete dialogue system with knowledge integration
@@ -252,4 +258,4 @@ pip install fastmcp
 
 ---
 
-**Built with FastMCP + FastAPI for proper, modern MCP implementations** 🚀
+**Built with FastMCP + FastAPI + GPT-4o for superior, modern MCP implementations** 🚀
