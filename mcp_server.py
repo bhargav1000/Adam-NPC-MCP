@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize MCP server
 server = FastMCP(
-    name="Adam NPC System",
-    version="1.0.0"
+    name="Adam NPC System"
 )
 
 # In-memory storage for conversation context
