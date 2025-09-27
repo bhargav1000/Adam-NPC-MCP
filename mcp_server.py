@@ -1,9 +1,5 @@
-"""
-Simple MCP-style HTTP Server for Adam NPC
-Provides MCP functionality via HTTP endpoints for easier client connectivity.
-"""
-
 from fastapi import FastAPI, HTTPException
+from fastapi_mcp import FastApiMCP
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import requests
@@ -11,6 +7,7 @@ import json
 import tiktoken
 import logging
 from datetime import datetime
+import uvicorn
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,10 +15,13 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI server
 app = FastAPI(
-    title="Adam NPC MCP Server",
-    description="MCP-style server for Adam, a wise centuries-old sage NPC",
+    title="Adam NPC Server",
+    description="Adam NPC server with MCP protocol support - A wise centuries-old sage from the Northern Isles",
     version="1.0.0"
 )
+
+# Initialize FastAPI-MCP wrapper BEFORE defining endpoints
+mcp = FastApiMCP(app)
 
 # In-memory storage for conversation context
 conversation_memory: List[Dict[str, Any]] = []
@@ -206,11 +206,15 @@ async def adam_character_profile():
     return profile
 
 if __name__ == "__main__":
-    import uvicorn
-    print("🚀 Starting Adam NPC HTTP Server...")
-    print("📡 Server will be available at http://localhost:8000")
+    
+    # Mount the MCP server to expose FastAPI endpoints as MCP tools
+    mcp.mount()
+    
+    print("🚀 Starting Adam NPC Server with FastAPI-MCP...")
+    print("📡 FastAPI endpoints available at http://localhost:8000")
     print("📚 API docs: http://localhost:8000/docs")
-    print("🔧 MCP-style endpoints available")
+    print("🔧 MCP protocol available at http://localhost:8000/mcp")
+    print("🧙‍♂️ Adam's tools: add_message, get_context, knowledge_search, etc.")
     print("⚡ Press Ctrl+C to stop\n")
     
     uvicorn.run(app, host="0.0.0.0", port=8000)

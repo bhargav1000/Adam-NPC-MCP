@@ -1,20 +1,14 @@
-"""
-Adam NPC MCP Client using MCP JSON-RPC protocol
-A proper MCP client for interacting with the Adam NPC dialogue system.
-"""
-
 import os
 import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import openai
-from mcp.client.session import ClientSession
-from mcp.client.stdio import StdioServerParameters, stdio_client
-from mcp.client.sse import sse_client
-from mcp import types
 from pydantic import BaseModel
 import logging
 import httpx
+import json
+from fastapi_mcp_client import MCPClient
+from adam_langgraph_workflow import create_adam_workflow, AdamNPCWorkflow
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,13 +26,17 @@ class ChatResponse(BaseModel):
 # Simple client - no web interface needed
 
 class AdamMCPClient:
-    """MCP client for Adam NPC interactions using proper MCP JSON-RPC protocol."""
+    """MCP client for Adam NPC interactions using LangGraph workflow orchestration."""
     
     def __init__(self, openai_api_key: str, mcp_server_url: str = "http://localhost:8000"):
         self.openai_api_key = openai_api_key
         self.mcp_server_url = mcp_server_url
+        self.base_server_url = mcp_server_url  # For HTTP fallback
         self.openai_client = openai.OpenAI(api_key=openai_api_key)
-        self.session = None
+        self.mcp_client = None
+        
+        # Initialize LangGraph workflow
+        self.langgraph_workflow = create_adam_workflow(openai_api_key, mcp_server_url)
         
         self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
 
@@ -54,38 +52,33 @@ class AdamMCPClient:
     async def __aenter__(self):
         """Async context manager entry - establish MCP connection."""
         try:
-            # Try to connect to MCP server via SSE transport
-            self.session = await sse_client(self.mcp_server_url).__aenter__()
-            
-            # Initialize the session
-            await self.session.initialize()
-            logger.info("✅ Connected to MCP server successfully")
+            # Create proper MCP client
+            self.mcp_client = MCPClient(self.mcp_server_url)
+            await self.mcp_client.__aenter__()
+            logger.info("✅ MCP protocol connection established")
             return self
         except Exception as e:
             logger.warning(f"⚠️  MCP connection failed, using HTTP fallback: {e}")
-            # Fallback to direct HTTP calls if MCP connection fails
-            self.session = None
+            self.mcp_client = None
             return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
-        if self.session:
-            await self.session.__aexit__(exc_type, exc_val, exc_tb)
+        if self.mcp_client:
+            await self.mcp_client.__aexit__(exc_type, exc_val, exc_tb)
 
     async def _call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Call an MCP tool via JSON-RPC protocol."""
-        if self.session:
+        """Call an MCP tool via proper MCP client or HTTP fallback."""
+        if self.mcp_client:
             try:
-                # Use proper MCP tool calling
-                result = await self.session.call_tool(
-                    name=tool_name,
-                    arguments=arguments or {}
-                )
-                return result.content[0].text if result.content else {}
+                # Use proper MCP protocol
+                result = await self.mcp_client.call_operation(tool_name, arguments or {})
+                logger.debug(f"MCP call successful: {tool_name}")
+                return result
             except Exception as e:
-                logger.warning(f"MCP tool call failed: {e}, falling back to HTTP")
+                logger.warning(f"MCP call failed: {e}, falling back to HTTP")
         
-        # Fallback to direct HTTP calls
+        # Fallback to HTTP calls
         return await self._http_fallback(tool_name, arguments)
 
     async def _http_fallback(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -102,7 +95,7 @@ class AdamMCPClient:
         if not endpoint:
             raise ValueError(f"Unknown tool: {tool_name}")
         
-        url = f"{self.mcp_server_url}{endpoint}"
+        url = f"{self.base_server_url}{endpoint}"
         
         async with httpx.AsyncClient() as client:
             if tool_name in ["get_context", "get_health_status"]:
@@ -154,7 +147,27 @@ class AdamMCPClient:
         return any(indicator in user_lower for indicator in knowledge_indicators)
 
     async def generate_response(self, user_message: str) -> ChatResponse:
-        """Generate Adam's response to user input."""
+        """Generate Adam's response using LangGraph workflow orchestration."""
+        try:
+            logger.info(f"🔀 Processing with LangGraph workflow: {user_message[:50]}...")
+            
+            # Use LangGraph workflow for orchestrated response generation
+            workflow_result = await self.langgraph_workflow.process_dialogue(user_message)
+            
+            return ChatResponse(
+                response=workflow_result["response"],
+                used_knowledge_tool=workflow_result.get("used_knowledge_tool", False),
+                knowledge_result=workflow_result.get("knowledge_result")
+            )
+            
+        except Exception as e:
+            logger.error(f"LangGraph workflow error: {e}")
+            # Fallback to direct method if workflow fails
+            logger.info("🔄 Falling back to direct response generation...")
+            return await self.generate_response_fallback(user_message)
+    
+    async def generate_response_fallback(self, user_message: str) -> ChatResponse:
+        """Fallback response generation method (original implementation)."""
         try:
             # Add user message to context
             await self.add_message("user", user_message)
@@ -230,9 +243,10 @@ class AdamMCPClient:
 
 # CLI Interface for testing
 async def interactive_chat():
-    """Run an interactive chat session with Adam using MCP."""
-    print("=== Adam NPC MCP Dialogue System ===")
-    print("Adam is a wise, centuries-old sage of the northern isles.")
+    """Run an interactive chat session with Adam using LangGraph + MCP."""
+    print("=== Adam NPC LangGraph + MCP Dialogue System ===")
+    print("🔀 Powered by LangGraph workflow orchestration")
+    print("🧙‍♂️ Adam is a wise, centuries-old sage of the northern isles")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -250,6 +264,8 @@ async def interactive_chat():
         except Exception as e:
             print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
             print(f"   Make sure the server is running: python mcp_server.py")
+            print(f"   MCP endpoint should be available at /mcp")
+            print(f"   HTTP fallback at {client.base_server_url}")
             return
         
         while True:
@@ -291,8 +307,10 @@ def start_interactive_chat():
     asyncio.run(interactive_chat())
 
 if __name__ == "__main__":
-    print("Starting Adam NPC MCP Client...")
-    print("Connecting to MCP server at http://localhost:8000")
+    print("🚀 Starting Adam NPC LangGraph + MCP Client...")
+    print("🔀 LangGraph workflow orchestration enabled")
+    print("📡 Connecting to MCP server at http://localhost:8000")
+    print("🛡️  Will use proper MCP protocol with HTTP fallback")
     print("Type 'quit' to exit, 'reset' to start over, or 'help' for commands.\n")
     
     # Start interactive chat directly
