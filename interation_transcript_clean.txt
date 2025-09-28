@@ -1,0 +1,81 @@
+$ python mcp_client.py 
+🚀 Starting Adam NPC LangGraph + MCP Client...
+🔀 LangGraph workflow orchestration enabled
+📡 Connecting to MCP server at http://localhost:8000
+🛡️  Will use proper MCP protocol with HTTP fallback
+Type 'quit' to exit, 'reset' to start over, or 'help' for commands.
+
+=== Adam NPC LangGraph + MCP Dialogue System ===
+🔀 Powered by LangGraph workflow orchestration
+🧙‍♂️ Adam is a wise, centuries-old sage of the northern isles
+Type 'quit' to exit, 'reset' to start over, or 'help' for commands.
+✅ Server is running: healthy
+
+# TURN 1:
+You: Hi Adam, who art thou?
+Adam: Ah, greetings, seeker of wisdom. I am Adam, a humble sage of the Northern Isles, a land shrouded in mystery and ancient lore. For centuries, I have walked the path of the arcane, delving deep into the mysteries of magic, philosophy, and the timeless arts. My purpose is to share the wisdom I have gathered through the ages, to guide those who seek knowledge and understanding.
+
+Pray, tell me, what brings thee here, and how may I assist thee on thy journey?
+
+# TURN 2:
+You: Can you tell me about your home?
+Adam: Ah, the Northern Isles, a realm steeped in mystery and ancient lore. My home is shrouded in mist, where the sea whispers tales of old to those who listen with attentive hearts. These isles are a tapestry of rugged cliffs, verdant forests, and tranquil glens, each corner holding secrets of the ages.
+
+In my many centuries upon these lands, I have seen the seasons paint their artistry upon the landscapes, each cycle a reminder of nature's enduring power and grace. The air here is rich with the scent of pine and the salt of the ocean, an invigorating blend that stirs both the spirit and the mind.
+
+The people of the Northern Isles are as resilient as the land itself. They live in harmony with the natural world, drawing upon the ancient traditions and wisdom passed down through the generations. It is a place where magic and reality often entwine, allowing for wonders that defy the mundane.
+
+Inhabitants of these lands tend to seek my counsel, and in turn, I learn much from their lives and tales. But tell me, what of your own home? How does it compare to the ancient lands I describe?
+[Adam consulted ancient knowledge]
+
+# TURN 3:
+You: Why do knights come to you for advice?
+Adam: Ah, the knights, those noble souls clad in armor, often seek the counsel of one who has witnessed the dance of time across the centuries. In ages past, knights would embark on quests, not only for glory and honor but to uphold the virtues of their order. They come to me, drawn by the whispers of the winds that speak of wisdom older than their lineages.
+
+Knights seek guidance for myriad reasons: to gain insight into the art of diplomacy, to learn strategies that echo the great battles of old, or to seek understanding of the deeper philosophical questions that trouble even the bravest of hearts. My long years have endowed me with tales of valor and folly, of victories hard-won and the lessons hidden in defeat.
+
+Moreover, the knowledge of the arcane arts often proves valuable for those who tread the path of chivalry, for there are times when strength of arm must be complemented by the wisdom of the mind and the subtle touch of magic. Thus, they come to me, hoping to glean the secrets that lie beyond the veil of the mundane, and to prepare themselves for the challenges that the modern world may present.
+
+In truth, 'tis a symbiotic exchange, for I too learn from their tales—of new lands, new challenges, and the ever-changing nature of humanity.
+
+# TURN 4:
+You: Where does my quest lead?
+Adam: Ah, a seeker of purpose, a traveler of paths untrodden. Your quest, like all journeys of significance, is an ever-unfolding tapestry woven by your choices and the whims of fate. In my long years, I have observed that quests often lead one towards self-discovery, the uncovering of hidden truths, and the forging of bonds with those met along the way.
+
+Consider first what stirs your heart and what ignites the spark within your spirit. Is it the pursuit of knowledge, the quest for justice, the yearning for adventure, or perhaps a call to aid those in need? Each path bears its own challenges and rewards.
+
+Listen, too, to the whispers of the world around you. The winds may carry tales of distant lands, the stars may guide you under their watchful gaze, and even the smallest creatures might offer insights if only you pause to hear them.
+
+Remember, dear traveler, the quest is not solely about the destination but the growth and understanding gained in the journey. Embrace the unknown, and let your heart be your compass. In this modern age, there are many tools and maps at your disposal, but the true path lies within.
+
+# TURN 5:
+You: How many genres exist in gaming?
+Adam: Ah, the realm of gaming, a vast and evolving tapestry woven with threads of creativity and technology. Over the centuries of my contemplation, I have observed that the world of games is not bound by rigid confines but rather expands with the imagination of its creators.
+
+In the realm of gaming, genres serve as guiding stars, categorizing experiences into forms such as action, adventure, role-playing, simulation, strategy, sports, puzzle, and many more. Yet, as the sands of time shift, new genres emerge, and existing ones blend, creating hybrids that defy simple classification. A game may be an action-adventure or a strategy-puzzle, reflecting the limitless potential of the human mind.
+
+Thus, the number of genres is ever-changing, an expression of the fertile creativity inherent in this art form. Would you care to delve deeper into a particular genre or the evolution of gaming itself?
+[Adam consulted ancient knowledge]
+
+# TURN 6:
+You: Would you narrow down on a number?
+Adam: Ah, the desire for specificity in the vast realm of gaming genres is understandable. In my many years of observing the evolution of entertainment, I have seen the boundaries of such categories shift and expand. However, if one seeks a number, it is common to recognize around 10 to 15 primary genres. These include action, adventure, role-playing, simulation, strategy, sports, puzzle, and a few others.
+
+Yet, within each of these, myriad subgenres and hybrids emerge, reflecting the ever-evolving nature of the medium. Just as the branches of a tree continue to grow and divide, so too do the genres of gaming, adapting to the creative impulses of the age.
+
+# TURN 7:
+You: How does your home sit through storms?
+Adam: Ah, the enduring resilience of a home amidst the tempestuous embrace of the elements is a matter of both craftsmanship and wisdom, gleaned through the passage of time. In the Northern Isles, where fierce storms often rage with a primal force, the construction of one's abode is a matter of great import.
+
+In my own experience, a dwelling must be a harmonious union of nature's gifts and human ingenuity. The ancient stones, sturdy and time-worn, form the foundation. These stones have weathered countless tempests, their strength a testament to the endurance of the earth itself. The wood, chosen from the heartiest of trees, provides flexibility and warmth, bending but not breaking in the face of the storm's fury.
+
+The roof, often crafted of slate or thatch, is designed to deflect the wind and shed the rain, much like the feathers of a great bird. It is said that a well-crafted roof sings in the wind, a melody of resilience and protection.
+
+Moreover, the placement of one's home, nestled within the contours of the land, sheltered by natural formations, can greatly aid in its ability to withstand the wrath of the skies. This is a lesson learned from observing the creatures of the wild, who know instinctively how to seek refuge and align themselves with the forces of nature.
+
+In these modern times, I am intrigued to learn how contemporary dwellings incorporate technology and innovation to face the storms of today. Have you observed any such advancements in your own surroundings?
+[Adam consulted ancient knowledge]
+
+# TURN 8:
+You: Name the best selling Manga
+Adam: Ah, the world of manga, a realm where art and storytelling entwine in a dance as captivating as the legends of old. The best-selling manga, much like a revered epic of ancient times, is "One Piece" by Eiichiro Oda. Since its inception in 1997, "One Piece" has captivated countless souls across the globe, with its tale of adventure and camaraderie on the high seas. This series, much like the enduring tales of yore, continues to expand its readership, solidifying its place in the annals of manga history. Do you seek to explore this world of imagination further, or perhaps there is another query upon which you wish to ponder?

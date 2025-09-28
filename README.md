@@ -34,15 +34,7 @@ Server will auto-detect the appropriate transport (stdio/http/sse).
 python mcp_client.py
 ```
 
-**Or use the Client API:**
-```bash
-# In a separate terminal, start the client API server
-python -c "
-import uvicorn
-from mcp_client import client_app
-uvicorn.run(client_app, host='0.0.0.0', port=8001)
-"
-```
+The client runs as an interactive CLI interface with LangGraph workflow orchestration.
 
 ## Architecture
 
@@ -59,8 +51,16 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 4. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback with workflow-based decision making
 5. **Character Consistency**: Adam's sage persona maintained across conversations through workflow state management
 
-### Langgraph Flow
-![Langgraph Flow](./LanggraphFlow.png")
+### LangGraph Workflow Architecture
+![LangGraph Flow](./LanggraphFlow.png)
+
+The workflow orchestrates dialogue through 6 processing nodes:
+1. **input_processor** - Process user input and create messages
+2. **context_retriever** - Get conversation context from MCP server  
+3. **knowledge_decider** - Intelligent decision for knowledge search
+4. **knowledge_searcher** - Search Adam's knowledge base + Wikipedia (conditional)
+5. **response_generator** - Generate Adam's response with GPT-4o
+6. **context_updater** - Update conversation state on MCP server
 
 ## API Reference
 
@@ -81,22 +81,22 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 |--------------|---------|
 | `adam://character/profile` | Adam's character information and background |
 
-### Client API Endpoints (`localhost:8001`)
+### LangGraph Workflow Integration
 
-| Endpoint | Method | Purpose |
-|----------|---------|---------|
-| `/chat` | POST | Chat with Adam NPC |
-| `/reset` | POST | Reset conversation |
-| `/context` | GET | Get conversation context |
-| `/health` | GET | Client health check |
+The client uses LangGraph workflow orchestration for sophisticated dialogue processing:
+- **Structured State Management**: TypedDict-based conversation state
+- **Conditional Logic**: Intelligent knowledge search decisions
+- **Error Handling**: Graceful fallbacks at each workflow node
+- **MCP Integration**: Seamless tool calls to MCP server endpoints
 
 ### Example Usage
 
-**Chat with Adam (via FastAPI client):**
+**Chat with Adam (via CLI):**
 ```bash
-curl -X POST "http://localhost:8001/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"content": "Tell me about the Northern Isles"}'
+python mcp_client.py
+# Interactive session starts
+You: Tell me about the Northern Isles
+Adam: Ah, the Northern Isles... [Adam's response with LangGraph orchestration]
 ```
 
 **Direct MCP Tools (using FastMCP client):**
@@ -169,14 +169,22 @@ ADAM_KNOWLEDGE_BASE = {
 # Test server health
 curl http://localhost:8000/health
 
-# Test client health  
-curl http://localhost:8001/health
-
 # Test knowledge tool
-curl -X POST http://localhost:8000/tool_call \
+curl -X POST http://localhost:8000/knowledge_search \
   -H "Content-Type: application/json" \
   -d '{"query": "wisdom"}'
+
+# Test LangGraph workflow
+python mcp_client.py
+# Type: "Tell me about wisdom"
 ```
+
+### Interaction Transcripts
+Interaction transcripts of up to 8 turns are recorded here:
+1. Raw Interaction: [Raw Transcript](interaction_transcript.txt)
+2. Cleaned Version: [Clean Transcript](interaction_transcript_clean.txt)
+
+3 instances of factual lookups using tool calls have been recorded.
 
 ## Configuration
 
@@ -194,7 +202,7 @@ Configuration can be modified in `mcp_server.py` if needed.
 
 ### Health Checks
 - Server: `GET /health` - Check MCP server status
-- Client: `GET /health` - Check client connection status
+- Client: Built-in health check during startup (connects to MCP server)
 
 ### Conversation Metrics
 - Token count tracking
@@ -223,36 +231,31 @@ pip install mcp
 
 ### Getting Help
 1. Check server logs in the terminal running `python mcp_server.py`
-2. Visit `http://localhost:8001/docs` for interactive client API documentation
+2. Visit `http://localhost:8000/docs` for interactive MCP server API documentation
 3. Test individual endpoints with curl commands above
+4. Run `python mcp_client.py` and type 'help' for interactive commands
 
-## Technical Assessment Compliance
 
 ### ✅ Implementation Requirements
-- **MCP Server**: ✅ FastAPI + FastMCP architecture
-- **MCP Client**: ✅ HTTP client with conversation orchestration  
-- **Token Management**: ✅ 4K limit with auto-summarization
+- **LangGraph Workflow**: ✅ Sophisticated dialogue orchestration with 6 processing nodes
+- **MCP Server**: ✅ FastAPI + FastMCP architecture with proper tools
+- **MCP Client**: ✅ LangGraph-powered client with workflow orchestration  
+- **Token Management**: ✅ 4K limit with intelligent auto-summarization
 - **Tool Integration**: ✅ Knowledge search with Wikipedia fallback
-- **Character Consistency**: ✅ Adam's sage persona maintained
+- **Character Consistency**: ✅ Adam's sage persona maintained through workflow state
 - **Conversation Memory**: ✅ Context-aware dialogue management
 
 ### ✅ Technical Features
+- **LangGraph Orchestration**: Structured workflow with conditional edges and state management
 - **GPT-4o Integration**: State-of-the-art language model for superior responses
 - **Python 3.11+ Compatible**: Modern Python features and performance optimizations
-- **Modern Architecture**: FastAPI + FastMCP (simplified vs complex custom protocols)
+- **Modern Architecture**: LangGraph + FastAPI + FastMCP for sophisticated dialogue management
 - **Auto-reload**: Development-friendly server
-- **Interactive Docs**: Built-in API documentation
-- **Health Monitoring**: Server and client health checks
-- **Error Handling**: Graceful fallbacks and error responses
-- **Structured Logging**: FastMCP context-aware logging for debugging
-
-### ✅ Evaluation Criteria Met
-- **Functionality**: Complete dialogue system with knowledge integration
-- **Code Quality**: Clean, documented, modern Python
-- **Architecture**: Scalable FastAPI design
-- **Documentation**: Comprehensive setup and usage guides
-- **Testing**: Demo scripts and health checks
+- **Interactive Docs**: Built-in API documentation at `/docs`
+- **Health Monitoring**: Server health checks and client startup validation
+- **Error Handling**: Graceful fallbacks at each workflow node
+- **Structured Logging**: Comprehensive logging throughout workflow execution
 
 ---
 
-**Built with FastMCP + FastAPI + GPT-4o for superior, modern MCP implementations** 🚀
+**Built with LangGraph + FastMCP + FastAPI + GPT-4o** 🚀
