@@ -59,6 +59,9 @@ uvicorn.run(client_app, host='0.0.0.0', port=8001)
 4. **Knowledge Tool**: Built-in knowledge base + Wikipedia fallback with workflow-based decision making
 5. **Character Consistency**: Adam's sage persona maintained across conversations through workflow state management
 
+### Langgraph Flow
+![Langgraph Flow]("./Langgraph Flow.png")
+
 ## API Reference
 
 ### MCP Server Tools and Resources

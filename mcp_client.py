@@ -38,7 +38,9 @@ class AdamMCPClient:
         # Initialize LangGraph workflow
         self.langgraph_workflow = create_adam_workflow(openai_api_key, mcp_server_url)
         
-        self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
+        self.system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. 
+        You possess vast knowledge of magic, philosophy, and the arcane arts. 
+        You speak with measured wisdom, often referencing your long life and experiences.
 
         Character traits:
         - Speak in a thoughtful, slightly archaic manner
@@ -81,6 +83,7 @@ class AdamMCPClient:
         # Fallback to HTTP calls
         return await self._http_fallback(tool_name, arguments)
 
+    # Use HTTP fallback when MCP fails
     async def _http_fallback(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
         """Fallback to direct HTTP calls when MCP fails."""
         endpoint_map = {
@@ -108,6 +111,7 @@ class AdamMCPClient:
             else:
                 raise Exception(f"HTTP {response.status_code}: {response.text}")
 
+    # Add a message to the conversation context
     async def add_message(self, role: str, content: str):
         """Add a message to the conversation context."""
         return await self._call_mcp_tool("add_message", {
@@ -116,10 +120,12 @@ class AdamMCPClient:
             "timestamp": datetime.now().isoformat()
         })
 
+    # Get the current conversation context
     async def get_context(self) -> Dict[Any, Any]:
         """Get the current conversation context."""
         return await self._call_mcp_tool("get_context", {})
 
+    # Search for knowledge using the MCP server
     async def search_knowledge(self, query: str) -> str:
         """Search for knowledge using the MCP server."""
         result = await self._call_mcp_tool("knowledge_search", {"query": query})
@@ -127,14 +133,17 @@ class AdamMCPClient:
             return result.get("result", "No information found.")
         return str(result)
 
+    # Reset the conversation context
     async def reset_conversation(self):
         """Reset the conversation context."""
         return await self._call_mcp_tool("reset_conversation", {})
 
+    # Get server health status
     async def get_health_status(self):
         """Get server health status."""
         return await self._call_mcp_tool("get_health_status", {})
 
+    # Determine if we should use the knowledge tool
     def should_use_knowledge_tool(self, user_message: str) -> bool:
         """Determine if we should use the knowledge tool."""
         knowledge_indicators = [
@@ -146,6 +155,7 @@ class AdamMCPClient:
         user_lower = user_message.lower()
         return any(indicator in user_lower for indicator in knowledge_indicators)
 
+    # Generate Adam's response using LangGraph workflow orchestration
     async def generate_response(self, user_message: str) -> ChatResponse:
         """Generate Adam's response using LangGraph workflow orchestration."""
         try:
@@ -166,6 +176,7 @@ class AdamMCPClient:
             logger.info("🔄 Falling back to direct response generation...")
             return await self.generate_response_fallback(user_message)
     
+    # Fallback response generation method
     async def generate_response_fallback(self, user_message: str) -> ChatResponse:
         """Fallback response generation method (original implementation)."""
         try:
@@ -263,9 +274,9 @@ async def interactive_chat():
             print(f"✅ Server is running: {health['status']}")
         except Exception as e:
             print(f"❌ Cannot connect to MCP server at {client.mcp_server_url}")
-            print(f"   Make sure the server is running: python mcp_server.py")
-            print(f"   MCP endpoint should be available at /mcp")
-            print(f"   HTTP fallback at {client.base_server_url}")
+            print("Make sure the server is running: python mcp_server.py")
+            print("MCP endpoint should be available at /mcp")
+            print(f"HTTP fallback at {client.base_server_url}")
             return
         
         while True:
