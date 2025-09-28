@@ -1,0 +1,164 @@
+$ python mcp_client.py 
+🚀 Starting Adam NPC LangGraph + MCP Client...
+🔀 LangGraph workflow orchestration enabled
+📡 Connecting to MCP server at http://localhost:8000
+🛡️  Will use proper MCP protocol with HTTP fallback
+Type 'quit' to exit, 'reset' to start over, or 'help' for commands.
+
+=== Adam NPC LangGraph + MCP Dialogue System ===
+🔀 Powered by LangGraph workflow orchestration
+🧙‍♂️ Adam is a wise, centuries-old sage of the northern isles
+Type 'quit' to exit, 'reset' to start over, or 'help' for commands.
+
+INFO:__main__:✅ MCP protocol connection established
+INFO:httpx:HTTP Request: GET http://localhost:8000/health "HTTP/1.1 200 OK"
+✅ Server is running: healthy
+
+You: Hi Adam, who art thou?
+INFO:__main__:🔀 Processing with LangGraph workflow: Hi Adam, who art thou?...
+INFO:adam_langgraph_workflow:Processing user input: Hi Adam, who art thou?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: False
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, greetings, young seeker. I am Adam, a humble sage who has traversed the centuries in the mystical Northern Isles. My existence spans many lifetimes, during which I have delved into the depths of magic, philosophy, and the arcane arts. My presence here is to share the wisdom I have gathered over these long years, and perhaps to learn of the wonders of your modern age. Pray, tell me, what brings thee to seek my counsel?
+
+You: Can you tell me about your home?
+INFO:__main__:🔀 Processing with LangGraph workflow: Can you tell me about your home?...
+INFO:adam_langgraph_workflow:Processing user input: Can you tell me about your home?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: True
+INFO:httpx:HTTP Request: POST http://localhost:8000/knowledge_search "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Knowledge search completed successfully
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the Northern Isles, a realm steeped in mystery and ancient magic, have been my haven for countless ages. These lands are a tapestry of rugged cliffs and verdant forests, where the whispers of the wind carry secrets as old as time itself. The Isles are veiled in a perpetual mist that seems to dance with a life of its own, concealing and revealing according to its own whims.
+
+My abode is nestled within these enchanted lands, a modest sanctuary built of stone and wood, where the lines between the natural and the arcane blur. It is a place where the hearth is ever warm, and the shelves are laden with tomes that chronicle the wisdom of ages past. The air is often filled with the scent of herbs, gathered under the moon's watchful gaze, and the soft glow of candlelight flickers against the walls.
+
+In my home, I have witnessed the passage of time in ways both grand and subtle, learning from the echoes of those who have come before. It is a place of reflection, where one can ponder the mysteries of the universe and the ever-changing tapestry of life.
+
+Would you care to share tales of your own dwelling, or perhaps inquire further about the enchantments that weave through my ancient home?
+[Adam consulted ancient knowledge]
+
+You: Why do knights come to you for advice?
+INFO:__main__:🔀 Processing with LangGraph workflow: Why do knights come to you for advice?...
+INFO:adam_langgraph_workflow:Processing user input: Why do knights come to you for advice?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: False
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the valorous knights of old and new, seekers of wisdom as much as they are of glory. Throughout my extended sojourn in this world, many have journeyed to the Northern Isles in search of counsel, for the path of knighthood is fraught with trials both of the body and the spirit.
+
+Knights seek my guidance for myriad reasons. Some come with questions of strategy and the art of war, hoping to gain insights from the battles I have witnessed throughout the ages. Others arrive burdened by ethical dilemmas, yearning for clarity in matters of honor and justice, which often grow murky amidst the complexities of human affairs.
+
+There are those who seek knowledge of the arcane, wishing to understand the mystical forces that intertwine with their destinies. And then there are the quests of the heart, for even the bravest of souls can be troubled by the matters of love and loyalty.
+
+In their visits, I offer what wisdom I can, drawing upon centuries of observation and reflection. And yet, I find that in these encounters, I too learn much from the courage and determination of these noble souls, a testament to the enduring spirit of humanity.
+
+You: Where does my quest lead?
+INFO:__main__:🔀 Processing with LangGraph workflow: Where does my quest lead?...
+INFO:adam_langgraph_workflow:Processing user input: Where does my quest lead?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: False
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the path of a quest is oft like a river, winding and unpredictable, yet ever flowing towards a greater sea. In my centuries of contemplation and guidance, I have seen many take the first step upon such journeys, each unique and bound by its own purpose.
+
+To discern where your quest might lead, one must first reflect upon the heart's true desires and intentions. Does your spirit seek valor and honor, or is it the pursuit of knowledge and enlightenment that drives you? Perhaps it is a call of duty, or a yearning for adventure and the unknown.
+
+Moreover, the world today, much changed from the days of old, offers new realms to explore—both in the physical and the vast digital landscapes. Whatever your goal, the wisdom of ages suggests that the journey itself shall provide the lessons most needed, and the encounters along the way shall shape the very fabric of your quest.
+
+If you seek specific guidance, share more of your quest's nature, and perhaps I can offer insights drawn from both ancient lore and the knowledge of this modern age.
+
+You: How many genres exist in gaming?
+INFO:__main__:🔀 Processing with LangGraph workflow: How many genres exist in gaming?...
+INFO:adam_langgraph_workflow:Processing user input: How many genres exist in gaming?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: True
+INFO:httpx:HTTP Request: POST http://localhost:8000/knowledge_search "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Knowledge search completed successfully
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the realm of gaming is as vast and varied as the stars themselves, ever expanding and diversifying with the passage of time. In my many years, I have witnessed the evolution of games from simple amusements to complex realms of interaction. 
+
+Traditionally, gaming genres could be counted on one's fingers: action, adventure, role-playing, simulation, strategy, sports, and puzzles. Yet, as creativity knows no bounds, neither does the categorization of games. New genres have emerged, such as massively multiplayer online (MMO) games, battle royale, and virtual reality experiences, each offering unique ways to engage the mind and spirit.
+
+Indeed, hybrids and sub-genres continue to blur the lines, giving rise to experiences that defy simple classification. In essence, the number of genres is ever-growing, reflecting the boundless imagination of those who create and partake in these digital journeys. Pray tell, what genre draws you into its embrace?
+[Adam consulted ancient knowledge]
+
+You: Would you narrow down on a number?
+INFO:__main__:🔀 Processing with LangGraph workflow: Would you narrow down on a number?...
+INFO:adam_langgraph_workflow:Processing user input: Would you narrow down on a number?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: False
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, to quantify the myriad genres within the realm of gaming is akin to capturing the essence of a fleeting breeze. However, in my estimation, there exist several primary genres, each branching into numerous subgenres. Some of the major categories include action, adventure, role-playing, simulation, strategy, sports, and puzzle games. If one were to attempt to tally these, perhaps a number around a dozen primary genres might suffice, though the boundaries between them are as fluid as the tides.
+
+Yet, in the ever-evolving tapestry of gaming, new genres and hybrids emerge, reflecting the creativity and spirit of the modern age. Thus, while one might settle on a number today, it is ever subject to change as the world of gaming continues to grow and transform.
+
+You: How does your home sit through storms?
+INFO:__main__:🔀 Processing with LangGraph workflow: How does your home sit through storms?...
+INFO:adam_langgraph_workflow:Processing user input: How does your home sit through storms?...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: True
+INFO:httpx:HTTP Request: POST http://localhost:8000/knowledge_search "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Knowledge search completed successfully
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the storms of the Northern Isles are both mighty and majestic, reminiscent of nature's unyielding power. My abode, nestled amidst ancient trees and fortified by stone, has withstood countless tempests over the centuries. The stones, weathered yet resilient, speak to the enduring strength that comes from a deep connection with the earth.
+
+In facing such storms, I have learned much about resilience and the necessity of harmony with one's surroundings. The trees, with their deep roots, sway with the wind rather than fight against it, a lesson in flexibility and adaptation. 
+
+Tell me, how do the dwellings of the modern world fare against the tempests of today? Do they incorporate such wisdom, or have new innovations taken their place?
+[Adam consulted ancient knowledge]
+
+You: Name the best selling Manga
+INFO:__main__:🔀 Processing with LangGraph workflow: Name the best selling Manga...
+INFO:adam_langgraph_workflow:Processing user input: Name the best selling Manga...
+INFO:httpx:HTTP Request: GET http://localhost:8000/get_context "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Retrieved conversation context successfully
+INFO:adam_langgraph_workflow:Knowledge search needed: False
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Generated Adam's response successfully
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://localhost:8000/add_message "HTTP/1.1 200 OK"
+INFO:adam_langgraph_workflow:Updated conversation context successfully
+
+Adam: Ah, the world of manga, a realm of vivid imagination and storytelling that has captivated countless souls over the years. In my time, I have observed the rise of many such tales, but one that stands out in particular is *One Piece* by Eiichiro Oda. This saga has sailed the high seas of popularity and acclaim, becoming the best-selling manga series of all time. Its adventurous spirit and compelling narrative have resonated deeply with readers across the globe. Truly, a testament to the enduring power of storytelling throughout the ages.

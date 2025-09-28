@@ -71,16 +71,18 @@ class AdamMCPClient:
 
     async def _call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
         """Call an MCP tool via proper MCP client or HTTP fallback."""
-        if self.mcp_client:
+        # For now, FastAPI-MCP integration isn't exposing endpoints as MCP tools properly
+        # So we'll use HTTP calls directly but keep MCP client for future use
+        if self.mcp_client and tool_name in ["add_message", "get_context", "knowledge_search"]:
             try:
-                # Use proper MCP protocol
+                # Try MCP protocol for core tools
                 result = await self.mcp_client.call_operation(tool_name, arguments or {})
                 logger.debug(f"MCP call successful: {tool_name}")
                 return result
             except Exception as e:
-                logger.warning(f"MCP call failed: {e}, falling back to HTTP")
+                logger.debug(f"MCP call failed for {tool_name}, using HTTP fallback")
         
-        # Fallback to HTTP calls
+        # Use HTTP calls (primary method until MCP tools are properly exposed)
         return await self._http_fallback(tool_name, arguments)
 
     # Use HTTP fallback when MCP fails
@@ -91,7 +93,8 @@ class AdamMCPClient:
             "get_context": "/get_context", 
             "knowledge_search": "/knowledge_search",
             "reset_conversation": "/reset_conversation",
-            "get_health_status": "/health"
+            "get_health_status": "/health",
+            "health": "/health"
         }
         
         endpoint = endpoint_map.get(tool_name)
@@ -141,7 +144,8 @@ class AdamMCPClient:
     # Get server health status
     async def get_health_status(self):
         """Get server health status."""
-        return await self._call_mcp_tool("get_health_status", {})
+        # Use HTTP directly for health checks to avoid MCP 404 errors
+        return await self._http_fallback("get_health_status", {})
 
     # Determine if we should use the knowledge tool
     def should_use_knowledge_tool(self, user_message: str) -> bool:
