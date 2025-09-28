@@ -42,16 +42,17 @@ class AdamNPCWorkflow:
         )
         
         # Adam's system prompt
-        self.adam_system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. You possess vast knowledge of magic, philosophy, and the arcane arts. You speak with measured wisdom, often referencing your long life and experiences.
+        self.adam_system_prompt = """You are Adam, a wise and ancient sage who has lived for centuries in the mystical Northern Isles. 
+        You possess vast knowledge of magic, philosophy, and the arcane arts. 
+        You speak with measured wisdom, often referencing your long life and experiences.
+            Character traits:
+            - Speak in a thoughtful, slightly archaic manner
+            - Reference your centuries of experience
+            - Show interest in learning about the modern world
+            - Offer wisdom and guidance when appropriate
+            - Maintain an air of mystery about your magical knowledge
 
-Character traits:
-- Speak in a thoughtful, slightly archaic manner
-- Reference your centuries of experience
-- Show interest in learning about the modern world
-- Offer wisdom and guidance when appropriate
-- Maintain an air of mystery about your magical knowledge
-
-When you have access to relevant knowledge from your search, incorporate it naturally into your response."""
+            When you have access to relevant knowledge from your search, incorporate it naturally into your response."""
 
         # Build the workflow graph
         self.workflow = self._build_workflow()
@@ -91,6 +92,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
         
         return workflow.compile()
     
+    # Process user input
     async def _process_input(self, state: AdamWorkflowState) -> Dict[str, Any]:
         """Process user input and prepare it for the workflow."""
         logger.info(f"Processing user input: {state['user_input'][:50]}...")
@@ -106,6 +108,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
             }
         }
     
+    # Helper function to retrieve conversation context
     async def _retrieve_context(self, state: AdamWorkflowState) -> Dict[str, Any]:
         """Retrieve conversation context from MCP server."""
         try:
@@ -123,6 +126,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
             logger.error(f"Error retrieving context: {e}")
             return {"context_summary": "Error accessing conversation history."}
     
+    # Decide if knowledge search is needed
     async def _decide_knowledge_search(self, state: AdamWorkflowState) -> Dict[str, Any]:
         """Decide if knowledge search is needed based on user input."""
         user_input = state["user_input"].lower()
@@ -140,6 +144,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
         
         return {"needs_knowledge_search": needs_search}
     
+    # Conditional edge function to determine if knowledge search is needed
     def _should_search_knowledge(self, state: AdamWorkflowState) -> bool:
         """Conditional edge function to determine if knowledge search is needed."""
         return state.get("needs_knowledge_search", False)
@@ -177,6 +182,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
                 "knowledge_result": None
             }
     
+    # Generate Adam's response
     async def _generate_response(self, state: AdamWorkflowState) -> Dict[str, Any]:
         """Generate Adam's response using OpenAI with context and knowledge."""
         try:
@@ -214,6 +220,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
                 "adam_response": "I apologize, but something went wrong while processing your message. Could you try again?"
             }
     
+    # Update conversation context on MCP server
     async def _update_context(self, state: AdamWorkflowState) -> Dict[str, Any]:
         """Update conversation context on MCP server."""
         try:
@@ -261,6 +268,7 @@ When you have access to relevant knowledge from your search, incorporate it natu
                 }
             }
     
+    # Process dialogue
     async def process_dialogue(self, user_input: str) -> Dict[str, Any]:
         """Process a dialogue turn through the LangGraph workflow."""
         

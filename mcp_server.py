@@ -111,7 +111,7 @@ def search_knowledge_tool(query: str) -> str:
     
     return f"The mists of time obscure this knowledge, but perhaps we can explore '{query}' together through conversation."
 
-# MCP-style HTTP Endpoints
+# MCP style HTTP Endpoints
 @app.post("/add_message")
 async def add_message(request: MessageRequest):
     """Add a message to the conversation context."""
